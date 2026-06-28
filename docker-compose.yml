@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  locatario-api:
+    build: .
+    container_name: microservico-locatario
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - DATABASE_URL=mysql://user:password@host:3306/db
+    restart: unless-stopped
