@@ -1,3 +1,5 @@
+// schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,11 +14,11 @@ enum Status {
 }
 
 model Locatario {
-  id        BigInt @id
-  email     String @unique
-  endereco  String
-  telefone  String?
-  status    Status @default(ATIVO)
+  id        BigInt  @id @map("id")
+  email     String  @unique(map: "email") @db.VarChar(255)
+  endereco  String  @db.VarChar(255)
+  telefone  String? @db.VarChar(20)
+  status    Status  @default(ATIVO)
 
   pessoaFisica   PessoaFisica?
   pessoaJuridica PessoaJuridica?
@@ -25,25 +27,77 @@ model Locatario {
 }
 
 model PessoaFisica {
-  locatarioId   BigInt @id
-  nome          String
-  cpf           String @unique
-  rg            String?
-  estadoCivil   String?
-  profissaoRamo String?
+  locatarioId   BigInt  @id @map("locatario_id")
+  nome          String  @db.VarChar(255)
+  cpf           String  @unique(map: "cpf") @db.VarChar(14)
+  rg            String? @db.VarChar(20)
+  estadoCivil   String? @map("estado_civil") @db.VarChar(50)
+  profissaoRamo String? @map("profissao_ramo") @db.VarChar(100)
 
-  locatario Locatario @relation(fields: [locatarioId], references: [id], onDelete: Cascade)
+  locatario Locatario @relation(fields: [locatarioId], references: [id], onDelete: Cascade, map: "fk_pf_locatario")
 
   @@map("pessoafisica")
 }
 
 model PessoaJuridica {
-  locatarioId       BigInt @id
-  razaoSocial       String
-  cnpj              String @unique
-  inscricaoEstadual String?
+  locatarioId       BigInt  @id @map("locatario_id")
+  razaoSocial       String  @map("razao_social") @db.VarChar(255)
+  cnpj              String  @unique(map: "cnpj") @db.VarChar(18)
+  inscricaoEstadual String? @map("inscricao_estadual") @db.VarChar(50)
 
-  locatario Locatario @relation(fields: [locatarioId], references: [id], onDelete: Cascade)
+  locatario Locatario @relation(fields: [locatarioId], references: [id], onDelete: Cascade, map: "fk_pj_locatario")
 
   @@map("pessoajuridica")
 }
+
+
+
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "mysql"
+// }
+
+// enum Status {
+//   ATIVO
+//   INATIVO
+// }
+
+// model Locatario {
+//   id        BigInt @id
+//   email     String @unique
+//   endereco  String
+//   telefone  String?
+//   status    Status @default(ATIVO)
+
+//   pessoaFisica   PessoaFisica?
+//   pessoaJuridica PessoaJuridica?
+
+//   @@map("locatario")
+// }
+
+// model PessoaFisica {
+//   locatarioId   BigInt @id
+//   nome          String
+//   cpf           String @unique
+//   rg            String?
+//   estadoCivil   String?
+//   profissaoRamo String?
+
+//   locatario Locatario @relation(fields: [locatarioId], references: [id], onDelete: Cascade)
+
+//   @@map("pessoafisica")
+// }
+
+// model PessoaJuridica {
+//   locatarioId       BigInt @id
+//   razaoSocial       String
+//   cnpj              String @unique
+//   inscricaoEstadual String?
+
+//   locatario Locatario @relation(fields: [locatarioId], references: [id], onDelete: Cascade)
+
+//   @@map("pessoajuridica")
+// }
