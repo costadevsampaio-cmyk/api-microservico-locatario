@@ -1,6 +1,11 @@
-import { IsOptional, IsEnum, IsString, IsNumberString } from 'class-validator';
-import { TipoPessoa } from './create-locatario.dto';
-import { Status } from '@prisma/client';
+import {
+  IsEnum,
+  IsNumberString,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+
+import { Status } from '../../common/enums/status.enum';
 
 export class QueryLocatarioDto {
   @IsOptional()
@@ -14,10 +19,6 @@ export class QueryLocatarioDto {
   @IsOptional()
   @IsEnum(Status)
   status?: Status;
-
-  @IsOptional()
-  @IsEnum(TipoPessoa)
-  tipo?: TipoPessoa;
 
   @IsOptional()
   @IsString()

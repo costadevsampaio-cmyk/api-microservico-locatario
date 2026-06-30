@@ -1,12 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+import { AppModule } from './app.module';
 import { ResponseInterceptor } from './common/interceptors/response.interceptors';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,9 +13,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') || 3002;
 
-  // -----------------------------
-  // VALIDATION PIPE GLOBAL
-  // -----------------------------
+  // Validation Pipe Global
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -25,40 +22,29 @@ async function bootstrap() {
     }),
   );
 
-  // -----------------------------
-  // GLOBAL INTERCEPTOR (PADRÃO RESPONSE)
-  // -----------------------------
+  // Interceptor Global
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  // -----------------------------
-  // GLOBAL EXCEPTION FILTER (ERROS PADRONIZADOS)
-  // -----------------------------
+  // Filtro Global de Exceções
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  // -----------------------------
-  // SWAGGER CONFIG
-  // -----------------------------
+  // Swagger
   const config = new DocumentBuilder()
     .setTitle('Microserviço Locatário')
-    .setDescription('API de gerenciamento de locatários da imobiliária')
-    .setVersion('1.0')
+    .setDescription('API de gerenciamento de locatários')
+    .setVersion('1.0.0')
     .addTag('Locatário')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('/api/docs', app, document);
+  SwaggerModule.setup('api/docs', app, document);
 
-  // -----------------------------
-  // CORS
-  // -----------------------------
   app.enableCors();
 
-  // -----------------------------
-  // START SERVER
-  // -----------------------------
   await app.listen(port);
 
-  console.log(`🚀 Server running on http://localhost:${port}`);
+  console.log(`🚀 Microserviço Locatário iniciado na porta ${port}`);
+  console.log(`📄 Swagger disponível em http://localhost:${port}/api/docs`);
 }
 
 bootstrap();

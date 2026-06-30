@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
 
 enum Status {
@@ -13,11 +12,11 @@ enum Status {
 }
 
 model Locatario {
-  id        BigInt   @id @default(autoincrement())
-  email     String   @unique
+  id        BigInt @id
+  email     String @unique
   endereco  String
   telefone  String?
-  status    Status   @default(ATIVO)
+  status    Status @default(ATIVO)
 
   pessoaFisica   PessoaFisica?
   pessoaJuridica PessoaJuridica?
@@ -26,9 +25,9 @@ model Locatario {
 }
 
 model PessoaFisica {
-  locatarioId   BigInt  @id
+  locatarioId   BigInt @id
   nome          String
-  cpf           String  @unique
+  cpf           String @unique
   rg            String?
   estadoCivil   String?
   profissaoRamo String?
@@ -39,24 +38,12 @@ model PessoaFisica {
 }
 
 model PessoaJuridica {
-  locatarioId       BigInt  @id
+  locatarioId       BigInt @id
   razaoSocial       String
-  cnpj              String  @unique
+  cnpj              String @unique
   inscricaoEstadual String?
 
   locatario Locatario @relation(fields: [locatarioId], references: [id], onDelete: Cascade)
 
   @@map("pessoajuridica")
-}
-
-
-model User {
-  id            Int     @id @default(autoincrement())
-  email         String  @unique
-  password      String
-  refreshToken  String? @db.Text
-  role          String  @default("USER")
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
 }
