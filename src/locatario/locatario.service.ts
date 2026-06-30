@@ -199,7 +199,41 @@ export class LocatarioService {
   }
 
   //----------------------------------------
-  // REMOVER
+  // SOFT DELETE (DESATIVAR)
+  //----------------------------------------
+
+  async softDelete(id: bigint) {
+    await this.findOne(id); // Garante que existe ou joga 404
+
+    return this.prisma.locatario.update({
+      where: {
+        id,
+      },
+      data: {
+        status: 'INATIVO',
+      },
+    });
+  }
+
+  //----------------------------------------
+  // REATIVAR
+  //----------------------------------------
+
+  async reativar(id: bigint) {
+    await this.findOne(id); // Garante que existe ou joga 404
+
+    return this.prisma.locatario.update({
+      where: {
+        id,
+      },
+      data: {
+        status: 'ATIVO',
+      },
+    });
+  }
+
+  //----------------------------------------
+  // REMOVER (HARD DELETE)
   //----------------------------------------
 
   async remove(id: bigint) {
