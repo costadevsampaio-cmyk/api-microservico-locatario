@@ -1,42 +1,45 @@
-# -----------------------------
-# BUILD STAGE
-# -----------------------------
-FROM node:20-alpine AS build
-
-WORKDIR /app
-
-COPY package*.json ./
-# Copia a pasta do prisma no build para gerar o client inicial
-COPY prisma ./prisma/ 
-
-RUN npm install
-
-COPY . .
-RUN npm run build
-
-# -----------------------------
-# RUN STAGE
-# -----------------------------
+# Define a versão específica do Node.js
 FROM node:20-alpine
 
-WORKDIR /app
+# O Prisma requer o OpenSSL para rodar no Alpine Linux
+RUN apk add --no-cache openssl
 
+# Define o diretório de trabalho dentro do contêiner
+WORKDIR /usr/src/app
+
+# Copia os arquivos de gerenciamento de pacotes primeiro
+# Isso otimiza o cache do Docker, evitando reinstalar pacotes se o código mudar, mas as dependências não
 COPY package*.json ./
-# Copia a pasta do prisma também para o estágio de execução
-COPY prisma ./prisma/ 
 
-# Instala as dependências de produção e gera o Prisma Client para o Alpine
-RUN npm install --only=production && npx prisma generate
+# Instala as dependências via npm
+RUN npm install
 
-# Copia o código compilado do estágio de build
-COPY --from=build /app/dist ./dist
+# Copia o schema do Prisma e o arquivo de configuração
+COPY prisma ./prisma/
 
+# Adicione esta linha para satisfazer a validação do schema do prisma durante o build
+ENV DATABASE_URL="mysql://dummy:dummy@localhost:3306/dummy"
+
+# Gera o Prisma Client
+RUN npx prisma generate
+
+# Copia todo o restante do código fonte do projeto
+COPY . .
+
+# ---------------------------------------------------
+# PASSO DE PRODUÇÃO 1: Compilar o código TypeScript
+# Isso vai gerar a pasta 'dist' contendo o JavaScript otimizado
+# ---------------------------------------------------
+RUN npm run build
+
+# Expõe a porta definida para a API do seu microsserviço
 EXPOSE 3002
 
-# Se quiser que ele aplique as migrations automaticamente ao subir o container:
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
-
-
+# ---------------------------------------------------
+# PASSO DE PRODUÇÃO 2: Rodar o JavaScript puro
+# Mais rápido, mais seguro e consome menos memória RAM
+# ---------------------------------------------------
+CMD ["node", "dist/main"]
 
 
 # # -----------------------------
