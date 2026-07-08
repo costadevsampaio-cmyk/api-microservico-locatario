@@ -1,5 +1,4 @@
-# Define a versão específica do Node.js
-FROM node:20-alpine
+FROM node:22-alpine
 
 # O Prisma requer o OpenSSL para rodar no Alpine Linux
 RUN apk add --no-cache openssl
