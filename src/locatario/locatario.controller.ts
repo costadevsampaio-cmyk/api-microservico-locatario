@@ -83,4 +83,13 @@ export class LocatarioController {
   async reativar(@Param('id') id: string) {
     return this.locatarioService.reativar(BigInt(id));
   }
+
+  @Delete(':id/hard')
+  @ApiOperation({ summary: 'Hard Delete: Remover o locatário definitivamente' })
+  @ApiParam({ name: 'id', type: String, description: 'ID do Locatário' })
+  @ApiResponse({ status: 200, description: 'Locatário removido com sucesso.' })
+  @ApiResponse({ status: 404, description: 'Locatário não encontrado.' })
+  async removeHard(@Param('id') id: string) {
+    return this.locatarioService.remove(BigInt(id));
+  }
 }
